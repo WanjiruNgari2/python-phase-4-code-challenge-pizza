@@ -4,38 +4,32 @@ from app import app
 from models import db, Restaurant, Pizza, RestaurantPizza
 
 with app.app_context():
-
-    # This will delete any existing rows
-    # so you can run the seed file multiple times without having duplicate entries in your database
+    # Clear existing data
     print("Deleting data...")
+    RestaurantPizza.query.delete()
     Pizza.query.delete()
     Restaurant.query.delete()
-    RestaurantPizza.query.delete()
-
-    print("Creating restaurants...")
-    shack = Restaurant(name="Karen's Pizza Shack", address='address1')
-    bistro = Restaurant(name="Sanjay's Pizza", address='address2')
-    palace = Restaurant(name="Kiki's Pizza", address='address3')
-    restaurants = [shack, bistro, palace]
-
-    print("Creating pizzas...")
-
-    cheese = Pizza(name="Emma", ingredients="Dough, Tomato Sauce, Cheese")
-    pepperoni = Pizza(
-        name="Geri", ingredients="Dough, Tomato Sauce, Cheese, Pepperoni")
-    california = Pizza(
-        name="Melanie", ingredients="Dough, Sauce, Ricotta, Red peppers, Mustard")
-    pizzas = [cheese, pepperoni, california]
-
-    print("Creating RestaurantPizza...")
-
-    pr1 = RestaurantPizza(restaurant=shack, pizza=cheese, price=1)
-    pr2 = RestaurantPizza(restaurant=bistro, pizza=pepperoni, price=4)
-    pr3 = RestaurantPizza(restaurant=palace, pizza=california, price=5)
-    restaurantPizzas = [pr1, pr2, pr3]
-    db.session.add_all(restaurants)
-    db.session.add_all(pizzas)
-    db.session.add_all(restaurantPizzas)
     db.session.commit()
 
-    print("Seeding done!")
+    # Create restaurants
+    print("Creating restaurants...")
+    dominos = Restaurant(name="Domino's")
+    pizza_hut = Restaurant(name="Pizza Hut")
+    db.session.add_all([dominos, pizza_hut])
+    db.session.commit()  # Commit to generate IDs for restaurants
+
+    # Create pizzas
+    print("Creating pizzas...")
+    pepperoni = Pizza(name="Pepperoni")
+    margherita = Pizza(name="Margherita")
+    db.session.add_all([pepperoni, margherita])
+    db.session.commit()  # Commit to generate IDs for pizzas
+
+    # Link restaurants and pizzas
+    print("Creating restaurant-pizza links...")
+    rp1 = RestaurantPizza(restaurant_id=dominos.id, pizza_id=pepperoni.id, price=15)
+    rp2 = RestaurantPizza(restaurant_id=pizza_hut.id, pizza_id=margherita.id, price=20)
+    db.session.add_all([rp1, rp2])
+    db.session.commit()
+
+    print("Database seeded successfully!")
